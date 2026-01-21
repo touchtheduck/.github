@@ -1,0 +1,75 @@
+name: CI OSSF Scorecard
+on:
+  workflow_call:
+    inputs:
+      publish-results:
+        description: Whether to upload the results of the analysis to the OpenSSF REST API.
+        type: boolean
+        default: true
+      upload-artifact:
+        description: Whether to upload the results of the analysis as an artifact.
+        type: boolean
+        default: true
+      upload-code-scanning:
+        description: "Whether to upload the results of the analysis to GitHub's code scanning dashboard."
+        type: boolean
+        default: true
+      artifact-retention-days:
+        description: The amount of days the SARIF file will be retained.
+        type: number
+        default: 5
+      sarif-file:
+        description: The name of the SARIF file from the analysis.
+        type: string
+        default: results.sarif
+
+permissions:
+  contents: read
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:  
+      # Needed to upload the results to code-scanning dashboard.
+      security-events: write
+      # Needed to publish results and get a badge (see publish_results below).
+      id-token: write
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: "Run analysis"
+        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
+        with:
+          results_file: ${{ inputs.sarif-file }}
+          results_format: sarif
+
+          # Public repositories:
+          #   - Publish results to OpenSSF REST API for easy access by consumers
+          #   - Allows the repository to include the Scorecard badge.
+          #   - See https://github.com/ossf/scorecard-action#publishing-results.
+          # For private repositories:
+          #   - `publish_results` will always be set to `false`, regardless
+          #     of the value entered here.
+          publish_results: ${{ inputs.publish-results }}
+
+      # Upload the results as artifacts (optional). Commenting out will disable uploads of run results in SARIF
+      # format to the repository Actions tab.
+      - name: "Upload artifact"
+        if: ${{ inputs.upload-artifact }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: SARIF file
+          path: ${{ inputs.sarif-file }}
+          retention-days: ${{ inputs.artifact-retention-days }}
+
+      # Upload the results to GitHub's code scanning dashboard (optional).
+      # Commenting out will disable upload of results to your repo's Code Scanning dashboard
+      - name: "Upload to code-scanning"
+        if: ${{ inputs.upload-code-scanning }}
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4
+        with:
+          sarif_file: ${{ inputs.sarif-file }}
