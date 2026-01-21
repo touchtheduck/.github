@@ -1,0 +1,193 @@
+name: Test Modpack Minecraft CI
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  setup-minecraft-ci-with-empty-modpack:
+    name: "GIVEN NeoForge modpack without mods WHEN minecraft-ci"
+    uses: ./.github/workflows/reusable-minecraft-ci.yml
+    with:
+      modpack-directory: .github/workflow-samples/neoforge-1.21.1-no-mods
+      artifact-name: neoforge-1-21-1-empty-modpack
+      minecraft-version: "1.21.1"
+      modloader: "neoforge"
+      on-client-failure: "ignore"
+      on-server-failure: "ignore"
+
+  test-minecraft-ci-with-empty-modpack-uploads-no-mods:
+    name: "THEN modpack-mods artifact contains no mods"
+    runs-on: ubuntu-latest
+    needs: setup-minecraft-ci-with-empty-modpack
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: neoforge-1-21-1-empty-modpack
+      - name: Extract Mods
+        shell: bash
+        run: |
+          tar -xvf mods.tar
+      - name: Assert modpack has no mods
+        uses: jaronline/action-assertions/assert-path-not-exists@v1
+        with:
+          path: mods/**/*
+          match-method: glob
+          message: "Expected no mods in the modpack-mods artifact"
+
+  test-minecraft-ci-with-empty-modpack-succeeds-client-test:
+    name: "AND client test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-with-empty-modpack
+      - test-minecraft-ci-with-empty-modpack-uploads-no-mods # Client doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert client test succeeded
+        uses: jaronline/action-assertions/assert-equals@v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-with-empty-modpack.outputs.client-test-result }}
+
+  test-minecraft-ci-with-empty-modpack-succeeds-server-test:
+    name: "AND server test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-with-empty-modpack
+      - test-minecraft-ci-with-empty-modpack-uploads-no-mods # Server doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert server test succeeded
+        uses: jaronline/action-assertions/assert-equals@v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-with-empty-modpack.outputs.server-test-result }}
+
+  setup-minecraft-ci-fabric-1-21-1-single-mod:
+    name: "GIVEN Fabric 1.21.1 modpack with a single mod WHEN minecraft-ci"
+    uses: ./.github/workflows/reusable-minecraft-ci.yml
+    with:
+      modpack-directory: .github/workflow-samples/fabric-1.21.1-single-mod
+      artifact-name: fabric-1-21-1-single-mod-mods
+      minecraft-version: "1.21.1"
+      modloader: "fabric"
+      fabric-api: "0.102.0"
+      on-client-failure: "ignore"
+      on-server-failure: "ignore"
+
+  test-minecraft-ci-fabric-1-21-1-single-mod-uploads-mod:
+    name: "THEN modpack-mods artifact contains the single mod"
+    runs-on: ubuntu-latest
+    needs: setup-minecraft-ci-fabric-1-21-1-single-mod
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: fabric-1-21-1-single-mod-mods
+      - name: Extract Mods
+        shell: bash
+        run: |
+          tar -xvf mods.tar
+      - name: Assert modpack has the single mod
+        uses: jaronline/action-assertions/assert-path-exists@v1
+        with:
+          path: mods/*jei*.jar
+          match-method: glob
+          message: "Expected to find Just Enough Items (JEI) mod in the modpack artifact"
+
+  test-minecraft-ci-fabric-1-21-1-single-mod-succeeds-client-test:
+    name: "AND client test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-fabric-1-21-1-single-mod
+      - test-minecraft-ci-fabric-1-21-1-single-mod-uploads-mod # Client doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert client test succeeded
+        uses: jaronline/action-assertions/assert-equals@v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-fabric-1-21-1-single-mod.outputs.client-test-result }}
+
+  test-minecraft-ci-fabric-1-21-1-single-mod-succeeds-server-test:
+    name: "AND server test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-fabric-1-21-1-single-mod
+      - test-minecraft-ci-fabric-1-21-1-single-mod-uploads-mod # Server doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert server test succeeded
+        uses: jaronline/action-assertions/assert-equals@v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-fabric-1-21-1-single-mod.outputs.server-test-result }}
+
+  setup-minecraft-ci-forge-1-20-1-create-modpack:
+    name: "GIVEN Forge 1.20.1 Create modpack WHEN minecraft-ci"
+    uses: ./.github/workflows/reusable-minecraft-ci.yml
+    with:
+      modpack-directory: .github/workflow-samples/forge-1.20.1-create-modpack
+      artifact-name: forge-1-20-1-create-mod-mods
+      minecraft-version: "1.20.1"
+      modloader: "forge"
+      on-client-failure: "ignore"
+      on-server-failure: "ignore"
+
+  test-minecraft-ci-forge-1-20-1-create-modpack-uploads-mods:
+    name: "THEN modpack-mods artifact contains Create mod and dependencies"
+    runs-on: ubuntu-latest
+    needs: setup-minecraft-ci-forge-1-20-1-create-modpack
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: forge-1-20-1-create-mod-mods
+      - name: Extract Mods
+        shell: bash
+        run: |
+          tar -xvf mods.tar
+      - name: Assert modpack has Create mod
+        uses: jaronline/action-assertions/assert-path-exists@v1
+        with:
+          path: mods/*create*.jar
+          match-method: glob
+          message: "Expected to find Create mod in the modpack artifact"
+      - name: Assert modpack has Steam N' Rails mod
+        uses: jaronline/action-assertions/assert-path-exists@v1
+        with:
+          path: mods/*Steam_Rails*.jar
+          match-method: glob
+          message: "Expected to find Steam N' Rails mod in the modpack artifact"
+      - name: Assert modpack has Copycats mod
+        uses: jaronline/action-assertions/assert-path-exists@v1
+        with:
+          path: mods/*copycats*.jar
+          match-method: glob
+          message: "Expected to find Copycats mod in the modpack artifact"
+
+  test-minecraft-ci-forge-1-20-1-create-modpack-succeeds-client-test:
+    name: "AND client test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-forge-1-20-1-create-modpack
+      - test-minecraft-ci-forge-1-20-1-create-modpack-uploads-mods # Client doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert client test succeeded
+        uses: jaronline/action-assertions/assert-equals@v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-forge-1-20-1-create-modpack.outputs.client-test-result }}
+
+  test-minecraft-ci-forge-1-20-1-create-modpack-succeeds-server-test:
+    name: "AND server test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-forge-1-20-1-create-modpack
+      - test-minecraft-ci-forge-1-20-1-create-modpack-uploads-mods # Server doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert server test succeeded
+        uses: jaronline/action-assertions/assert-equals@v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-forge-1-20-1-create-modpack.outputs.server-test-result }}
+    

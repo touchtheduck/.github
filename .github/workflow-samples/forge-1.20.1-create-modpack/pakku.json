@@ -1,0 +1,7 @@
+{
+    "name": "Sample Create Modpack",
+    "version": "0.0.1",
+    "overrides": [
+        "config"
+    ]
+}

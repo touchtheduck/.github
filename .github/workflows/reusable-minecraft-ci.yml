@@ -1,0 +1,180 @@
+name: Modpack Minecraft CI
+description: This workflow tests if mods in a Minecraft modpack using Pakku can be loaded without errors.
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        description: The Java version to use
+        type: string
+        default: "21"
+      java-distribution:
+        description: The Java distribution to use
+        type: string
+        default: "microsoft"
+      modpack-directory:
+        description: The path to the Pakku modpack
+        type: string
+        default: modpack
+      artifact-name:
+        description: The name of the uploaded artifact containing the mods
+        type: string
+        default: modpack-mods
+      test-client:
+        description: Whether to run the client test job
+        type: boolean
+        default: true
+      on-client-failure:
+        description: What to do on client test failure (fail, warn or ignore. outputs result if 'warn' or 'ignore' is chosen)
+        type: string
+        default: "fail"
+      test-server:
+        description: Whether to run the server test job
+        type: boolean
+        default: true
+      on-server-failure:
+        description: What to do on server test failure (fail, warn or ignore. outputs result if 'warn' or 'ignore' is chosen)
+        type: string
+        default: "fail"
+      minecraft-version:
+        description: The Minecraft version to test
+        type: string
+        required: true
+      modloader:
+        description: The modloader to test (e.g., fabric, forge)
+        type: string
+        required: true
+      modloader-regex:
+        description: Regex to match the modloader jar
+        type: string
+        default: ""
+      mc-runtime-test:
+        description: The MC-Runtime-Test variant to use for client testing (e.g., 'lexforge' for Forge, 'fabric', or omit to use the modloader name by default or 'lexforge' for Forge)
+        type: string
+        required: false
+      fabric-api:
+        description: Fabric API version to use (if applicable)
+        type: string
+        default: "none"
+    outputs:
+      client-test-result:
+        description: The result of the client test job
+        value: ${{ inputs.test-client && jobs.client-test.outputs.result || 'skipped' }}
+      server-test-result:
+        description: The result of the server test job
+        value: ${{ inputs.test-server && jobs.server-test.outputs.result || 'skipped' }}
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-mods:
+    name: Fetch Mods
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: ${{ inputs.modpack-directory }}
+      - name: Install Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.java-distribution }}
+      - name: Install Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+      - name: Install Pakku
+        shell: bash
+        run: |
+          brew install juraj-hrivnak/pakku/pakku
+      - name: Fetch Mods
+        shell: bash
+        working-directory: ${{ inputs.modpack-directory }}
+        run: |
+          mkdir mods
+          pakku fetch
+      # Archive the mods folder in case it contains no mods
+      - name: Tar Mods
+        shell: bash
+        working-directory: ${{ inputs.modpack-directory }}
+        run: |
+          tar -cvf mods.tar mods
+      - name: Upload Artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.modpack-directory }}/mods.tar
+  
+  client-test:
+    name: Client Test
+    runs-on: ubuntu-latest
+    if: ${{ inputs.test-client }}
+    needs: fetch-mods
+    outputs:
+      result: ${{ steps.mc-test-client.outcome }}
+    steps:
+      - name: Install Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.java-distribution }}
+      - name: Download Mods Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}
+      - name: Extract Mods
+        shell: bash
+        run: |
+          mkdir run
+          tar -xvf mods.tar -C run
+      - name: Run MC Test Client
+        id: mc-test-client
+        uses: headlesshq/mc-runtime-test@4.1.0
+        continue-on-error: ${{ inputs.on-client-failure != 'fail' }}
+        with:
+          mc: ${{ inputs.minecraft-version }}
+          modloader: ${{ inputs.modloader }}
+          regex: ${{ inputs.modloader-regex != '' && inputs.modloader-regex || format('.*{0}.*', inputs.modloader) }}
+          mc-runtime-test: ${{ inputs.mc-runtime-test || (inputs.modloader == 'forge' && 'lexforge') || inputs.modloader }}
+          java: ${{ inputs.java-version }}
+          fabric-api: ${{ inputs.fabric-api }}
+      - name: Handle Client Test Failure
+        if: ${{ inputs.on-client-failure == 'warn' && steps.mc-test-client.outcome == 'failure' }}
+        run: |
+          echo "::warning::Client test failed but continuing as per configuration."
+
+  server-test:
+    name: Server Test
+    runs-on: ubuntu-latest
+    if: ${{ inputs.test-server }}
+    needs: fetch-mods
+    outputs:
+      result: ${{ steps.mc-test-server.outcome }}
+    steps:
+      - name: Install Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.java-distribution }}
+      - name: Download Mods Artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}
+      - name: Extract Mods
+        shell: bash
+        run: |
+          mkdir run
+          tar -xvf mods.tar -C run
+      - name: Run MC Test Server
+        id: mc-test-server
+        uses: headlesshq/mc-server-test@1.1.1
+        continue-on-error: ${{ inputs.on-server-failure != 'fail' }}
+        with:
+          mc: ${{ inputs.minecraft-version }}
+          modloader: ${{ inputs.modloader }}
+          java: ${{ inputs.java-version }}
+          fabric-api: ${{ inputs.fabric-api }}
+      - name: Handle Server Test Failure
+        if: ${{ inputs.on-server-failure == 'warn' && steps.mc-test-server.outcome == 'failure' }}
+        run: |
+          echo "::warning::Server test failed but continuing as per configuration."
