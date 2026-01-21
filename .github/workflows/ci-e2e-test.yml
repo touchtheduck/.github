@@ -1,0 +1,28 @@
+name: CI E2E Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: e2e-test-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  minecraft-e2e-tests:
+    uses: ./.github/workflows/suite-e2e-test-minecraft.yml
+    secrets: inherit
+
+  e2e-tests-summary:
+    name: E2E Tests Summary
+    needs: minecraft-e2e-tests
+    if: always()
+    uses: ./.github/workflows/check-job-or-step-result.yml
+    with:
+      result: ${{ needs.minecraft-e2e-tests.result }}
