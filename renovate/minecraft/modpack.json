@@ -1,0 +1,9 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "github>touchtheduck/.github//renovate/gh-actions",
+        "github>touchtheduck/.github//renovate/gradle",
+        "github>touchtheduck/.github//renovate/npm"
+    ],
+    "additionalReviewers": ["LiekevK"]
+}

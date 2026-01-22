@@ -1,0 +1,7 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["github>touchtheduck/.github//renovate/base", "helpers:pinGitHubActionDigests"],
+    "github-actions": {
+        "extends": [":pinDependencies", "github>touchtheduck/.github//renovate/base-package-rules"]
+    }
+}

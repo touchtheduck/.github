@@ -1,0 +1,6 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["github>touchtheduck/.github//renovate/gh-actions", "github>touchtheduck/.github//renovate/gradle"],
+    "baseBranchPatterns": ["$default", "/^\\d+\\.\\d+(\\.\\d+)?(-(pre|rc|snapshot-)\\d+)?$/", "/^\\d+\\.\\d+\\.x$/", "/^\\d{2}w\\d{2}[a-z]$/"],
+    "additionalReviewers": ["A-Bekar"]
+}

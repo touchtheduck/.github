@@ -1,0 +1,8 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["github>touchtheduck/.github//renovate/base"],
+    "gradle": {
+        "extends": ["github>touchtheduck/.github//renovate/base-package-rules"],
+        "rangeStrategy": "bump"
+    }
+}
