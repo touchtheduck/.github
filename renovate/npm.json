@@ -1,0 +1,14 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["github>touchtheduck/.github//renovate/base"],
+    "npm": {
+        "extends": ["github>touchtheduck/.github//renovate/base-package-rules"],
+        "packageRules": [
+            {
+                "enabled": false,
+                "matchDepTypes": ["engines"]
+            }
+        ],
+        "rangeStrategy": "bump"
+    }
+}
