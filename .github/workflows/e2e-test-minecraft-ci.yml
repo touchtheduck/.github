@@ -24,7 +24,7 @@ jobs:
     needs: setup-minecraft-ci-with-empty-modpack
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: neoforge-1-21-1-empty-modpack
       - name: Extract Mods
@@ -32,7 +32,7 @@ jobs:
         run: |
           tar -xvf mods.tar
       - name: Assert modpack has no mods
-        uses: jaronline/action-assertions/assert-path-not-exists@v1
+        uses: jaronline/action-assertions/assert-path-not-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           path: mods/**/*
           match-method: glob
@@ -46,7 +46,7 @@ jobs:
       - test-minecraft-ci-with-empty-modpack-uploads-no-mods # Client doesn't need testing if mods uploaded incorrectly
     steps:
       - name: Assert client test succeeded
-        uses: jaronline/action-assertions/assert-equals@v1
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           expected: success
           actual: ${{ needs.setup-minecraft-ci-with-empty-modpack.outputs.client-test-result }}
@@ -59,7 +59,7 @@ jobs:
       - test-minecraft-ci-with-empty-modpack-uploads-no-mods # Server doesn't need testing if mods uploaded incorrectly
     steps:
       - name: Assert server test succeeded
-        uses: jaronline/action-assertions/assert-equals@v1
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           expected: success
           actual: ${{ needs.setup-minecraft-ci-with-empty-modpack.outputs.server-test-result }}
@@ -82,7 +82,7 @@ jobs:
     needs: setup-minecraft-ci-fabric-1-21-1-single-mod
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: fabric-1-21-1-single-mod-mods
       - name: Extract Mods
@@ -90,7 +90,7 @@ jobs:
         run: |
           tar -xvf mods.tar
       - name: Assert modpack has the single mod
-        uses: jaronline/action-assertions/assert-path-exists@v1
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           path: mods/*jei*.jar
           match-method: glob
@@ -104,7 +104,7 @@ jobs:
       - test-minecraft-ci-fabric-1-21-1-single-mod-uploads-mod # Client doesn't need testing if mods uploaded incorrectly
     steps:
       - name: Assert client test succeeded
-        uses: jaronline/action-assertions/assert-equals@v1
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           expected: success
           actual: ${{ needs.setup-minecraft-ci-fabric-1-21-1-single-mod.outputs.client-test-result }}
@@ -117,7 +117,7 @@ jobs:
       - test-minecraft-ci-fabric-1-21-1-single-mod-uploads-mod # Server doesn't need testing if mods uploaded incorrectly
     steps:
       - name: Assert server test succeeded
-        uses: jaronline/action-assertions/assert-equals@v1
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           expected: success
           actual: ${{ needs.setup-minecraft-ci-fabric-1-21-1-single-mod.outputs.server-test-result }}
@@ -139,7 +139,7 @@ jobs:
     needs: setup-minecraft-ci-forge-1-20-1-create-modpack
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: forge-1-20-1-create-mod-mods
       - name: Extract Mods
@@ -147,19 +147,19 @@ jobs:
         run: |
           tar -xvf mods.tar
       - name: Assert modpack has Create mod
-        uses: jaronline/action-assertions/assert-path-exists@v1
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           path: mods/*create*.jar
           match-method: glob
           message: "Expected to find Create mod in the modpack artifact"
       - name: Assert modpack has Steam N' Rails mod
-        uses: jaronline/action-assertions/assert-path-exists@v1
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           path: mods/*Steam_Rails*.jar
           match-method: glob
           message: "Expected to find Steam N' Rails mod in the modpack artifact"
       - name: Assert modpack has Copycats mod
-        uses: jaronline/action-assertions/assert-path-exists@v1
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           path: mods/*copycats*.jar
           match-method: glob
@@ -173,7 +173,7 @@ jobs:
       - test-minecraft-ci-forge-1-20-1-create-modpack-uploads-mods # Client doesn't need testing if mods uploaded incorrectly
     steps:
       - name: Assert client test succeeded
-        uses: jaronline/action-assertions/assert-equals@v1
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           expected: success
           actual: ${{ needs.setup-minecraft-ci-forge-1-20-1-create-modpack.outputs.client-test-result }}
@@ -186,7 +186,7 @@ jobs:
       - test-minecraft-ci-forge-1-20-1-create-modpack-uploads-mods # Server doesn't need testing if mods uploaded incorrectly
     steps:
       - name: Assert server test succeeded
-        uses: jaronline/action-assertions/assert-equals@v1
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
         with:
           expected: success
           actual: ${{ needs.setup-minecraft-ci-forge-1-20-1-create-modpack.outputs.server-test-result }}
