@@ -1,0 +1,7 @@
+{
+    "name": "Example Large Modpack",
+    "version": "0.0.1",
+    "overrides": [
+        "config"
+    ]
+}

@@ -190,4 +190,91 @@ jobs:
         with:
           expected: success
           actual: ${{ needs.setup-minecraft-ci-forge-1-20-1-create-modpack.outputs.server-test-result }}
+
+  setup-minecraft-ci-neoforge-1-21-1-large-modpack:
+    name: "GIVEN NeoForge 1.21.1 Large modpack WHEN minecraft-ci"
+    uses: ./.github/workflows/reusable-minecraft-ci.yml
+    with:
+      modpack-directory: .github/workflow-samples/neoforge-1.21.1-large-modpack
+      artifact-name: neoforge-1-21-1-large-modpack-mods
+      minecraft-version: "1.21.1"
+      modloader: "neoforge"
+      on-client-failure: "ignore"
+      on-server-failure: "ignore"
+
+  test-minecraft-ci-neoforge-1-21-1-large-modpack-uploads-mods:
+    name: "THEN modpack-mods artifact contains expected mods"
+    runs-on: ubuntu-latest
+    needs: setup-minecraft-ci-neoforge-1-21-1-large-modpack
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: neoforge-1-21-1-large-modpack-mods
+      - name: Extract Mods
+        shell: bash
+        run: |
+          tar -xvf mods.tar
+      - name: Assert modpack has the single mod
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          path: mods/*.jar
+          match-method: glob
+          message: "Expected to find at least a single mod in the modpack artifact"
+      - name: Assert modpack has JEI
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          path: mods/*jei*.jar
+          match-method: glob
+          message: "Expected to find Just Enough Items (JEI) mod in the modpack artifact"
+      - name: Assert modpack has Create mod
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          path: mods/*create*.jar
+          match-method: glob
+          message: "Expected to find Create mod in the modpack artifact"
+      - name: Assert modpack has Copycats mod
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          path: mods/*copycats*.jar
+          match-method: glob
+          message: "Expected to find Copycats mod in the modpack artifact"
+      - name: Assert modpack has AE2 mod
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          path: mods/*appliedenergistics2*.jar
+          match-method: glob
+          message: "Expected to find Applied Energistics 2 mod in the modpack artifact"
+      - name: Assert modpack has ATO mod
+        uses: jaronline/action-assertions/assert-path-exists@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          path: mods/*alltheores*.jar
+          match-method: glob
+          message: "Expected to find All The Ores mod in the modpack artifact"
+
+  test-minecraft-ci-neoforge-1-21-1-large-modpack-succeeds-client-test:
+    name: "AND client test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-neoforge-1-21-1-large-modpack
+      - test-minecraft-ci-neoforge-1-21-1-large-modpack-uploads-mods # Client doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert client test succeeded
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-neoforge-1-21-1-large-modpack.outputs.client-test-result }}
+
+  test-minecraft-ci-neoforge-1-21-1-large-modpack-succeeds-server-test:
+    name: "AND server test succeeds"
+    runs-on: ubuntu-latest
+    needs:
+      - setup-minecraft-ci-neoforge-1-21-1-large-modpack
+      - test-minecraft-ci-neoforge-1-21-1-large-modpack-uploads-mods # Server doesn't need testing if mods uploaded incorrectly
+    steps:
+      - name: Assert server test succeeded
+        uses: jaronline/action-assertions/assert-equals@95d6eb160cf27b8beab013b5112b4adc971c37a5 # v1
+        with:
+          expected: success
+          actual: ${{ needs.setup-minecraft-ci-neoforge-1-21-1-large-modpack.outputs.server-test-result }}
     
