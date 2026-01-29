@@ -1,0 +1,47 @@
+name: reusable-gradle-job
+description: Reusable workflow to run a Gradle job in a Gradle project
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        description: The Java version to use
+        type: string
+        default: ${{ vars.JAVA_VERSION || '21' }}
+      java-distribution:
+        description: The Java distribution to use
+        type: string
+        default: ${{ vars.JAVA_DISTRIBUTION || 'microsoft' }}
+      gradle-path:
+        description: The path to the Gradle project
+        type: string
+        default: "."
+      gradle-task:
+        description: The Gradle task to run
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  run-job:
+    name: Run Gradle Job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          sparse-checkout: ${{ inputs.gradle-path }}
+      - name: Install Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.java-distribution }}
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5
+      - name: Validate Gradle Configuration
+        working-directory: ${{ inputs.gradle-path }}
+        shell: bash
+        run: |
+          ./gradlew ${{ inputs.gradle-task }} --no-daemon
