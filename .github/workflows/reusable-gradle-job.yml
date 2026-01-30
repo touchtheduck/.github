@@ -20,6 +20,10 @@ on:
         description: The Gradle task to run
         type: string
         required: true
+      sparse-checkout:
+        description: The paths to include in the sparse checkout (if empty, full checkout is done)
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -30,9 +34,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
+        if: ${{ inputs.sparse-checkout == '' }}
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Checkout Repository (sparse)
+        if: ${{ inputs.sparse-checkout != '' }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          sparse-checkout: ${{ inputs.gradle-path }}
+          sparse-checkout: ${{ inputs.sparse-checkout }}
       - name: Install Java
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
