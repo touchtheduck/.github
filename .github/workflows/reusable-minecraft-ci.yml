@@ -113,6 +113,11 @@ jobs:
     outputs:
       result: ${{ steps.mc-test-client.outcome }}
     steps:
+      - name: Set up swap space
+        if: runner.os == 'Linux'
+        uses: pierotofy/set-swap-space@49819abfb41bd9b44fb781159c033dba90353a7c # v1.0
+        with:
+          swap-size-gb: 10
       - name: Install Java
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -138,6 +143,7 @@ jobs:
           mc-runtime-test: ${{ inputs.mc-runtime-test || (inputs.modloader == 'forge' && 'lexforge') || inputs.modloader }}
           java: ${{ inputs.java-version }}
           fabric-api: ${{ inputs.fabric-api }}
+          headlessmc-command: --jvm "-Djava.awt.headless=true" "-Xmx12G"
       - name: Handle Client Test Failure
         if: ${{ inputs.on-client-failure == 'warn' && steps.mc-test-client.outcome == 'failure' }}
         run: |
@@ -151,6 +157,11 @@ jobs:
     outputs:
       result: ${{ steps.mc-test-server.outcome }}
     steps:
+      - name: Set up swap space
+        if: runner.os == 'Linux'
+        uses: pierotofy/set-swap-space@49819abfb41bd9b44fb781159c033dba90353a7c # v1.0
+        with:
+          swap-size-gb: 10
       - name: Install Java
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -174,6 +185,7 @@ jobs:
           modloader: ${{ inputs.modloader }}
           java: ${{ inputs.java-version }}
           fabric-api: ${{ inputs.fabric-api }}
+          headlessmc-command: --jvm "-Djava.awt.headless=true" "-Xmx12G"
       - name: Handle Server Test Failure
         if: ${{ inputs.on-server-failure == 'warn' && steps.mc-test-server.outcome == 'failure' }}
         run: |
