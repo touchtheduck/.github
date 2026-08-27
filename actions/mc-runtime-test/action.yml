@@ -1,0 +1,59 @@
+name: "MC Runtime Test"
+description: "Test the Minecraft client in CI"
+author: "JaronZ"
+
+outputs:
+  outcome:
+    description: "The outcome of the client test"
+    value: ${{ steps.mc-test.outcome }}
+inputs:
+  java-version:
+    description: "The Java version to use"
+    default: "21"
+  java-distribution:
+    description: "The Java distribution to use"
+    default: "microsoft"
+  on-failure:
+    description: "What to do on test failure (fail, warn, or ignore). Outputs outcome if 'warn' or 'ignore' is chosen."
+    default: "fail"
+  minecraft-version:
+    description: "The Minecraft version to test"
+    required: true
+  modloader:
+    description: "The modloader to test (e.g., fabric, forge)"
+    required: true
+  modloader-regex:
+    description: "Regex to match the modloader jar"
+    default: ""
+  mc-runtime-test:
+    description: "The MC-Runtime-Test variant to use for client testing (e.g., 'lexforge' for Forge, 'fabric', or omit to use the modloader name by default or 'lexforge' for Forge)"
+    required: false
+  fabric-api:
+    description: "Fabric API version to use (if applicable)"
+    default: "none"
+
+runs:
+  using: composite
+  steps:
+    - name: "Install Java"
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.java-distribution }}
+    - name: "Run MC Runtime Test"
+      id: mc-test
+      uses: headlesshq/mc-runtime-test@2a5a5bcc9d833cf22a817f3561915421dfd6a287 # 4.1.0
+      continue-on-error: ${{ inputs.on-failure != 'fail' }}
+      with:
+        mc: ${{ inputs.minecraft-version }}
+        modloader: ${{ inputs.modloader }}
+        regex: ${{ inputs.modloader-regex != '' && inputs.modloader-regex || format('.*{0}.*', inputs.modloader) }}
+        mc-runtime-test: ${{ inputs.mc-runtime-test || (inputs.modloader == 'forge' && 'lexforge') || inputs.modloader }}
+        java: ${{ inputs.java-version }}
+        fabric-api: ${{ inputs.fabric-api }}
+    - name: "Handle Test Failure"
+      if: ${{ inputs.on-failure == 'warn' && steps.mc-test.outcome == 'failure' }}
+      shell: bash
+      run: |
+        echo "::warning::Client test failed."
+    
