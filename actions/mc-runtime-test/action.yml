@@ -14,7 +14,7 @@ inputs:
     description: "The Java distribution to use"
     default: "microsoft"
   on-failure:
-    description: "What to do on test failure (fail, warn or ignore. outputs result if 'warn' or 'ignore' is chosen)"
+    description: "What to do on test failure (fail, warn, or ignore). Outputs outcome if 'warn' or 'ignore' is chosen."
     default: "fail"
   minecraft-version:
     description: "The Minecraft version to test"
