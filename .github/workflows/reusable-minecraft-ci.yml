@@ -113,6 +113,11 @@ jobs:
     outputs:
       result: ${{ steps.mc-test-client.outcome }}
     steps:
+      - name: Install Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.java-distribution }}
       - name: Download Mods Artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
@@ -127,7 +132,6 @@ jobs:
         uses: touchtheduck/.github/actions/mc-runtime-test@39022ae15e82af3e1fedb1b096e97b556c187453
         with:
           java-version: ${{ inputs.java-version }}
-          java-distribution: ${{ inputs.java-distribution }}
           on-failure: ${{ inputs.on-client-failure }}
           minecraft-version: ${{ inputs.minecraft-version }}
           modloader: ${{ inputs.modloader }}
@@ -143,6 +147,11 @@ jobs:
     outputs:
       result: ${{ steps.mc-test-server.outcome }}
     steps:
+      - name: Install Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.java-distribution }}
       - name: Download Mods Artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
@@ -157,7 +166,6 @@ jobs:
         uses: touchtheduck/.github/actions/mc-server-test@39022ae15e82af3e1fedb1b096e97b556c187453
         with:
           java-version: ${{ inputs.java-version }}
-          java-distribution: ${{ inputs.java-distribution }}
           on-failure: ${{ inputs.on-server-failure }}
           minecraft-version: ${{ inputs.minecraft-version }}
           modloader: ${{ inputs.modloader }}
