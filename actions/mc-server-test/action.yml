@@ -1,0 +1,51 @@
+name: "MC Server Test"
+description: "Test the Minecraft server in CI"
+author: "JaronZ"
+
+outputs:
+  outcome:
+    description: "The outcome of the server test"
+    value: ${{ steps.mc-test.outcome }}
+inputs:
+  java-version:
+    description: "The Java version to use"
+    default: "21"
+  java-distribution:
+    description: "The Java distribution to use"
+    default: "microsoft"
+  on-failure:
+    description: "What to do on test failure (fail, warn, or ignore). Outputs outcome if 'warn' or 'ignore' is chosen."
+    default: "fail"
+  minecraft-version:
+    description: "The Minecraft version to test"
+    required: true
+  modloader:
+    description: "The modloader to test (e.g., fabric, forge)"
+    required: true
+  fabric-api:
+    description: "Fabric API version to use (if applicable)"
+    default: "none"
+
+runs:
+  using: composite
+  steps:
+    - name: "Install Java"
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.java-distribution }}
+    - name: "Run MC Server Test"
+      id: mc-test
+      uses: headlesshq/mc-server-test@42de00da95e997b046a43eb9beb516494e542ba9 # 1.1.1
+      continue-on-error: ${{ inputs.on-failure != 'fail' }}
+      with:
+        mc: ${{ inputs.minecraft-version }}
+        modloader: ${{ inputs.modloader }}
+        java: ${{ inputs.java-version }}
+        fabric-api: ${{ inputs.fabric-api }}
+    - name: "Handle Test Failure"
+      if: ${{ inputs.on-failure == 'warn' && steps.mc-test.outcome == 'failure' }}
+      shell: bash
+      run: |
+        echo "::warning::Server test failed."
+    
