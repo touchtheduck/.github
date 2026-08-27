@@ -113,11 +113,6 @@ jobs:
     outputs:
       result: ${{ steps.mc-test-client.outcome }}
     steps:
-      - name: Install Java
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
-        with:
-          java-version: ${{ inputs.java-version }}
-          distribution: ${{ inputs.java-distribution }}
       - name: Download Mods Artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
@@ -129,19 +124,16 @@ jobs:
           tar -xvf mods.tar -C run
       - name: Run MC Test Client
         id: mc-test-client
-        uses: headlesshq/mc-runtime-test@2a5a5bcc9d833cf22a817f3561915421dfd6a287 # 4.1.0
-        continue-on-error: ${{ inputs.on-client-failure != 'fail' }}
+        uses: touchtheduck/.github/actions/mc-runtime-test@39022ae15e82af3e1fedb1b096e97b556c187453
         with:
-          mc: ${{ inputs.minecraft-version }}
+          java-version: ${{ inputs.java-version }}
+          java-distribution: ${{ inputs.java-distribution }}
+          on-failure: ${{ inputs.on-client-failure }}
+          minecraft-version: ${{ inputs.minecraft-version }}
           modloader: ${{ inputs.modloader }}
-          regex: ${{ inputs.modloader-regex != '' && inputs.modloader-regex || format('.*{0}.*', inputs.modloader) }}
+          modloader-regex: ${{ inputs.modloader-regex != '' && inputs.modloader-regex || format('.*{0}.*', inputs.modloader) }}
           mc-runtime-test: ${{ inputs.mc-runtime-test || (inputs.modloader == 'forge' && 'lexforge') || inputs.modloader }}
-          java: ${{ inputs.java-version }}
           fabric-api: ${{ inputs.fabric-api }}
-      - name: Handle Client Test Failure
-        if: ${{ inputs.on-client-failure == 'warn' && steps.mc-test-client.outcome == 'failure' }}
-        run: |
-          echo "::warning::Client test failed but continuing as per configuration."
 
   server-test:
     name: Server Test
@@ -151,11 +143,6 @@ jobs:
     outputs:
       result: ${{ steps.mc-test-server.outcome }}
     steps:
-      - name: Install Java
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
-        with:
-          java-version: ${{ inputs.java-version }}
-          distribution: ${{ inputs.java-distribution }}
       - name: Download Mods Artifact
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
@@ -167,14 +154,11 @@ jobs:
           tar -xvf mods.tar -C run
       - name: Run MC Test Server
         id: mc-test-server
-        uses: headlesshq/mc-server-test@42de00da95e997b046a43eb9beb516494e542ba9 # 1.1.1
-        continue-on-error: ${{ inputs.on-server-failure != 'fail' }}
+        uses: touchtheduck/.github/actions/mc-server-test@39022ae15e82af3e1fedb1b096e97b556c187453
         with:
-          mc: ${{ inputs.minecraft-version }}
+          java-version: ${{ inputs.java-version }}
+          java-distribution: ${{ inputs.java-distribution }}
+          on-failure: ${{ inputs.on-server-failure }}
+          minecraft-version: ${{ inputs.minecraft-version }}
           modloader: ${{ inputs.modloader }}
-          java: ${{ inputs.java-version }}
           fabric-api: ${{ inputs.fabric-api }}
-      - name: Handle Server Test Failure
-        if: ${{ inputs.on-server-failure == 'warn' && steps.mc-test-server.outcome == 'failure' }}
-        run: |
-          echo "::warning::Server test failed but continuing as per configuration."
