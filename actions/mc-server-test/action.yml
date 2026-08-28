@@ -29,7 +29,7 @@ runs:
     - name: "Run MC Server Test"
       id: mc-test
       uses: headlesshq/mc-server-test@42de00da95e997b046a43eb9beb516494e542ba9 # 1.1.1
-      continue-on-error: ${{ inputs.on-failure != 'fail' }}
+      continue-on-error: ${{ inputs.on-failure != 'fail' && true || false }}
       with:
         mc: ${{ inputs.minecraft-version }}
         modloader: ${{ inputs.modloader }}
