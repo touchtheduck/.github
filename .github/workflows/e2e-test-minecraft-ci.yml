@@ -24,7 +24,7 @@ jobs:
     needs: setup-minecraft-ci-with-empty-modpack
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: neoforge-1-21-1-empty-modpack
       - name: Extract Mods
@@ -82,7 +82,7 @@ jobs:
     needs: setup-minecraft-ci-fabric-1-21-1-single-mod
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: fabric-1-21-1-single-mod-mods
       - name: Extract Mods
@@ -139,7 +139,7 @@ jobs:
     needs: setup-minecraft-ci-forge-1-20-1-create-modpack
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: forge-1-20-1-create-mod-mods
       - name: Extract Mods
