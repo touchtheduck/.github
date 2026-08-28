@@ -34,7 +34,7 @@ runs:
   steps:
     - name: "Run MC Runtime Test"
       id: mc-test
-      uses: headlesshq/mc-runtime-test@2a5a5bcc9d833cf22a817f3561915421dfd6a287 # 4.1.0
+      uses: headlesshq/mc-runtime-test@fbafe02f89f4f13682e7b16dbcee6b6a43f4faca # 4.5.1
       continue-on-error: ${{ inputs.on-failure != 'fail' }}
       with:
         mc: ${{ inputs.minecraft-version }}
