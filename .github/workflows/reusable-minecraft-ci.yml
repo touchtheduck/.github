@@ -82,7 +82,7 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: ${{ inputs.java-distribution }}
       - name: Install Homebrew
-        uses: Homebrew/actions/setup-homebrew@75ea84e0c056f44fbc237368be867593cd459107 # main
+        uses: Homebrew/actions/setup-homebrew@304fc86d2c26bcd269547dbcfcfb4c853e710779 # main
       - name: Install Pakku
         shell: bash
         run: |
