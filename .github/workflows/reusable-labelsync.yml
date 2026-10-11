@@ -16,7 +16,7 @@ on:
       repository:
         description: The repository to get the labels.yml file from
         required: false
-        default: TouchTheDuck/.github
+        default: touchtheduck/.github
         type: string
 
 jobs:
