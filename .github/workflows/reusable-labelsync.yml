@@ -1,0 +1,38 @@
+name: Reusable Label Sync
+
+on:
+  workflow_call:
+    inputs:
+      operating-system:
+        description: The operating system to use (default `ubuntu-latest`)
+        required: false
+        default: ubuntu-latest
+        type: string
+      with-submodules:
+        description: Whether to include submodules when checking out the repository (default `false`)
+        required: false
+        default: 'false'
+        type: string
+      repository:
+        description: The repository to get the labels.yml file from
+        required: false
+        default: TouchTheDuck/.github
+        type: string
+
+jobs:
+  label-sync:
+    name: Label sync
+    runs-on: ${{ inputs.operating-system }}
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          sparse-checkout: .github/labels.yml
+          sparse-checkout-cone-mode: false
+          repository: ${{ inputs.repository }}
+          submodules: ${{ inputs.with-submodules }}
+      - name: Run Label Sync
+        uses: Compairifuel/.github/actions/labelsync@main
