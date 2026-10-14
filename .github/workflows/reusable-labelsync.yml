@@ -35,4 +35,4 @@ jobs:
           repository: ${{ inputs.repository }}
           submodules: ${{ inputs.with-submodules }}
       - name: Run Label Sync
-        uses: Compairifuel/.github/actions/labelsync@main
+        uses: Compairifuel/.github/actions/labelsync@c05ff467c376ced04699223c100c8cda4fbc81fe # main
